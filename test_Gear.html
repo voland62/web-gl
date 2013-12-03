@@ -1,0 +1,68 @@
+<html>
+
+<head>
+<title>Test Gears</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="Gear.js"></script>
+
+
+
+
+
+<!--      main stuff       -->
+<script type="text/javascript">
+    
+    
+
+    function startTest ()
+    {
+        var gear = new Gear(60);
+        log (gear);
+        //log ( polarToCart ( [Math.PI / 4 , 1]) );
+
+        var p0 = [1,-2,3];
+        var p1 = [10,20,30];
+
+        log(p0);
+        log(p1);
+
+        var v1 = vec3.subtract(p1, p0, []);
+
+        log(p0);
+        log(p1);
+
+        log(v1);
+    }
+
+    function log ()
+    {
+        console.log.apply( console, arguments );
+        //alert ( arguments[0] );
+    }
+
+    function polarToCart ( polar )
+{
+    return [ polar[1] * Math.cos ( polar[0] ) ,polar[1] * Math.sin ( polar[0] ) ];
+}
+    
+</script>
+
+
+
+</head>
+
+
+<body onload="startTest();">
+   
+
+<!--
+ 
+    <canvas id="gear-canvas" style="border: none;" width="500" height="500"></canvas>
+-->
+
+    
+</body>
+
+</html>

@@ -1,0 +1,210 @@
+<html>
+
+<head>
+<title>Learning WebGL &mdash; lesson 4</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="Gear.js"></script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec4 vColor;
+    
+    void main(void) {
+
+        gl_FragColor = vColor;
+    }
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    varying vec4 vColor;
+    
+    void main(void) {
+
+        vColor = vec4(0.0, 1.0, 0.0, 1.0);
+        gl_Position = vec4(aVertexPosition, 1.0);
+    }
+</script>
+
+
+<script type="text/javascript">
+
+    var gl;
+
+    function initGL(canvas) {
+        try {
+            gl = canvas.getContext("experimental-webgl");
+            gl.viewportWidth = canvas.width;
+            gl.viewportHeight = canvas.height;
+        } catch (e) {
+        }
+        if (!gl) {
+            alert("Could not initialise WebGL, sorry :-(");
+        }
+    }
+
+
+    function getShader(gl, id) {
+        var shaderScript = document.getElementById(id);
+        if (!shaderScript) {
+            return null;
+        }
+
+        var str = "";
+        var k = shaderScript.firstChild;
+        while (k) {
+            if (k.nodeType == 3) {
+                str += k.textContent;
+            }
+            k = k.nextSibling;
+        }
+
+        var shader;
+        if (shaderScript.type == "x-shader/x-fragment") {
+            shader = gl.createShader(gl.FRAGMENT_SHADER);
+        } else if (shaderScript.type == "x-shader/x-vertex") {
+            shader = gl.createShader(gl.VERTEX_SHADER);
+        } else {
+            return null;
+        }
+
+        gl.shaderSource(shader, str);
+        gl.compileShader(shader);
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert(gl.getShaderInfoLog(shader));
+            return null;
+        }
+
+        return shader;
+    }
+
+
+    var shaderProgram;
+
+    function initShaders() {
+        var fragmentShader = getShader(gl, "shader-fs");
+        var vertexShader = getShader(gl, "shader-vs");
+
+        shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        gl.linkProgram(shaderProgram);
+
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            alert("Could not initialise shaders");
+        }
+
+        gl.useProgram(shaderProgram);
+
+        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+    }
+
+
+    var linesPositionBuffer;
+    var linesVertexBuffer;
+
+    function initBuffers() {
+
+        var vertices = [    0,0,0,
+                            0.9,0.9,0
+                            ,0.0, -0.1,0
+                            ,0.9,-0.9,0
+                             ,-0.1, -0.2,0
+                            ,-0.9,0.9,0
+                            ];
+
+       /* var indeces = [ 0,1
+                        ,2,3
+                        ];*/
+
+
+
+        //--- position buffer -------
+        linesPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, linesPositionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( vertices ), gl.STATIC_DRAW);
+        linesPositionBuffer.itemSize = 3;
+        linesPositionBuffer.numItems = vertices.length;
+
+        //--- vertex buffer ---------
+/*        linesVertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesVertexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, 
+            new Uint16Array( indeces ), gl.STATIC_DRAW);
+        linesVertexBuffer.itemSize = 1;
+        linesVertexBuffer.numItems = indeces.length;*/
+
+
+    }
+
+
+    function drawScene() {
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, linesPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, linesPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+
+        //--- index buffer -----------------
+        //gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, linesVertexBuffer);
+
+
+        //gl.drawElements ( gl.LINES, linesVertexBuffer.numItems,  gl.UNSIGNED_SHORT, 0);
+        gl.drawArrays(gl.LINES, 0, 6);
+
+        //gl.drawElements ( gl.LINES, pyramidVertexIndexBuffer.numItems,  gl.UNSIGNED_SHORT, 0);
+        //gl.drawArrays(gl.TRIANGLES, 0, pyramidVertexPositionBuffer.numItems);
+        //gl.drawArrays( gl.TRIANGLE_FAN, 0, pyramidVertexPositionBuffer.numItems  );
+
+
+
+    }
+
+
+    function webGLStart() {
+        var canvas = document.getElementById("lesson04-canvas");
+        initGL(canvas);
+        initShaders()
+        initBuffers();
+
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.enable(gl.DEPTH_TEST);
+
+        drawScene();
+    }
+
+
+
+
+    function log ()
+    {
+        console.log.apply( console, arguments );
+        //alert ( arguments[0] );
+    }
+
+
+</script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+    
+
+    <canvas id="lesson04-canvas" style="border: none;" width="500" height="500"></canvas>
+
+   <br/> 
+   <input type="range" name="points" min="0" max="50" onchange="tick();" style="width: 200px; height: 20px;">
+</body>
+
+</html>

@@ -1,0 +1,622 @@
+<html>
+
+<head>
+<title>Learning WebGL &mdash; lesson 4</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="Gear.js"></script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 color;
+    void main() {
+      gl_FragColor = vec4(color.rgb, 1.0);
+    }
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 pos;
+    attribute vec3 normal;
+    //attribute vec4 colorIn;
+    uniform vec4 colorIn;
+
+    varying vec4 color;
+    
+    uniform mat4 mvp;
+    uniform mat3 normalMatrix;
+    uniform vec4 ambient;
+    uniform float shininess;
+    uniform vec3 light_0_direction;
+    uniform vec4 light_0_diffuse;
+    uniform vec4 light_0_specular;
+    uniform vec3 light_1_direction;
+    uniform vec4 light_1_diffuse;
+    uniform vec3 light_2_direction;
+    uniform vec4 light_2_diffuse;
+    
+    vec3 worldNormal;
+    
+    vec4 SpecularLight(vec3 direction,
+                       vec4 diffuseColor,
+                       vec4 specularColor) {
+      vec3 lightDir = normalize(direction);
+      float diffuse = max(0., dot(worldNormal, lightDir));
+      float specular = 0.;
+      if (diffuse > 0.) {
+        vec3 halfv = normalize(lightDir + vec3(0., 0., 1.));
+        specular = pow(max(0., dot(halfv, worldNormal)), shininess);
+      }
+      return diffuse * diffuseColor * colorIn + specular * specularColor;
+    }
+    
+    vec4 DiffuseLight(vec3 direction, vec4 diffuseColor) {
+      vec3 lightDir = normalize(direction);
+      float diffuse = max(0., dot(worldNormal, lightDir));
+      return diffuse * diffuseColor * colorIn;
+    }
+    
+    void main() {
+      worldNormal = normalize(normalMatrix * normal);
+    
+      gl_Position = mvp * vec4(pos, 1.);
+    
+      color = ambient * colorIn;
+      color += SpecularLight(light_0_direction, light_0_diffuse,
+                             light_0_specular);
+      color += DiffuseLight(light_1_direction, light_1_diffuse);
+      color += DiffuseLight(light_2_direction, light_2_diffuse);
+      color = vec4(1.0, 0.0, 0.0, 1.0);
+    }
+</script>
+
+
+<script type="text/javascript">
+
+    var gl;
+
+    function initGL(canvas) {
+        try {
+            gl = canvas.getContext("experimental-webgl");
+            gl.viewportWidth = canvas.width;
+            gl.viewportHeight = canvas.height;
+        } catch (e) {
+        }
+        if (!gl) {
+            alert("Could not initialise WebGL, sorry :-(");
+        }
+    }
+
+
+    function getShader(gl, id) {
+        var shaderScript = document.getElementById(id);
+        if (!shaderScript) {
+            return null;
+        }
+
+        var str = "";
+        var k = shaderScript.firstChild;
+        while (k) {
+            if (k.nodeType == 3) {
+                str += k.textContent;
+            }
+            k = k.nextSibling;
+        }
+
+        var shader;
+        if (shaderScript.type == "x-shader/x-fragment") {
+            shader = gl.createShader(gl.FRAGMENT_SHADER);
+        } else if (shaderScript.type == "x-shader/x-vertex") {
+            shader = gl.createShader(gl.VERTEX_SHADER);
+        } else {
+            return null;
+        }
+
+        gl.shaderSource(shader, str);
+        gl.compileShader(shader);
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert(gl.getShaderInfoLog(shader));
+            return null;
+        }
+
+        return shader;
+    }
+
+
+    var shaderProgram;
+
+    function initShaders() 
+    {
+        var fragmentShader = getShader(gl, "shader-fs");
+        var vertexShader = getShader(gl, "shader-vs");
+
+
+        shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        gl.linkProgram(shaderProgram);
+
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            alert("Could not initialise shaders");
+        }
+
+        gl.useProgram(shaderProgram);
+
+
+        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "pos");
+        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+        shaderProgram.normalsAttribute = gl.getAttribLocation(shaderProgram, "normal");
+        gl.enableVertexAttribArray(shaderProgram.normalsAttribute);
+
+        //shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "colorIn");
+        //gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+
+
+        shaderProgram.colorUniform = gl.getUniformLocation(shaderProgram, "colorIn");
+
+        //shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+        //shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        //shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+        //shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+        //shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "uUseLighting");
+        //shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+        //shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "lightDir");
+        //shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+     
+       
+        shaderProgram.mvpUniform = gl.getUniformLocation(shaderProgram, "mvp");
+        shaderProgram.normalMatrixUniform = gl.getUniformLocation(shaderProgram, "normalMatrix");
+        shaderProgram.ambientUniform = gl.getUniformLocation(shaderProgram, "ambient");
+        shaderProgram.shininessUniform = gl.getUniformLocation(shaderProgram, "shininess");
+        shaderProgram.light_0_directionUniform = gl.getUniformLocation(shaderProgram, "light_0_direction");
+        shaderProgram.light_0_diffuseUniform = gl.getUniformLocation(shaderProgram, "light_0_diffuse");
+        shaderProgram.light_0_specularUniform = gl.getUniformLocation(shaderProgram, "light_0_specular");
+        shaderProgram.light_1_directionUniform = gl.getUniformLocation(shaderProgram, "light_1_direction");
+        shaderProgram.light_1_diffuseUniform = gl.getUniformLocation(shaderProgram, "light_1_diffuse");
+        shaderProgram.light_2_directionUniform = gl.getUniformLocation(shaderProgram, "light_2_direction");
+        shaderProgram.light_2_diffuseUniform = gl.getUniformLocation(shaderProgram, "light_2_diffuse");
+
+    }
+
+
+    function degToRad(degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+
+    var pyramidVertexPositionBuffer;
+    //var pyramidVertexColorBuffer;
+    var pyramidNormalsBuffer;
+    var pyramidVertexIndexBuffer;
+
+    var linesBuffer;
+    //var linesIndecesBuffer;
+
+    var cubeVertexPositionBuffer;
+    var cubeVertexColorBuffer;
+    var cubeVertexIndexBuffer;
+    var gearVertexPositionBuffer;
+    //var gearVertexColorBuffer;
+    var gearVertexIndexBuffer;
+
+    function initBuffers() {
+
+
+        var pyramydVertices = [
+            [0,1,0],
+            [-1,-1,1],
+            [1,-1,1],
+            [1,-1,-1],
+            [-1,-1,-1]
+        ];
+
+        
+        var piramidIndeces = [
+            0,1,2,
+            0,2,3,
+            0,3,4,
+            0,4,1
+
+        ];
+
+
+        var linesVertices = [];
+        //var lineIndeces = [];
+
+        var piramidNormals = [];
+
+        for (var i = 0; i < piramidIndeces.length; i += 3) {
+            var p0 = pyramydVertices[ piramidIndeces[i] ];
+            var p1 = pyramydVertices[ piramidIndeces[i + 1]];
+            var p2 = pyramydVertices[ piramidIndeces[i + 2]];
+
+            var v1 = vec3.subtract(p1, p0, []); //p1 - p0;
+            var v2 = vec3.subtract(p1, p2, []); //p1 - p2;
+
+            var norm =  vec3.cross(v2, v1);// v1 * v2;
+            //log( norm);
+
+            vec3.normalize(norm ,norm);
+            //log( norm);
+            
+
+            piramidNormals.push( norm, norm, norm);
+
+            //--- lines ---------------
+            linesVertices.push ( p0 , vec3.add(p0, norm, []));
+            linesVertices.push ( p1 , vec3.add(p1, norm, []));
+            linesVertices.push ( p2 , vec3.add(p2, norm, []));
+
+            //lineIndeces.push ( i , i + 1, i + 2, i + 3, i + 4, i + 5); glvao
+             
+        };
+
+        var vertices = toFlat( pyramydVertices );
+        var normals = toFlat( piramidNormals );
+        log (normals.length);
+        var lines = toFlat( linesVertices );
+
+/*        lines = [
+                    0,1,2,
+                    4,5,6.23423,
+                    0,1,2,
+                    4,5,6,
+                    0,1,2,
+                    4,5,6,
+                    0,1,2,
+                    4,5,6,
+                    0,1,2,
+                    4,5,6.23423,
+                    0,1,2,
+                    4,5,6,
+                    0,1,2,
+                    4,5,6
+                    
+                    ];*/
+        // log( lines );
+        //log (piramidNormals.length);
+        //log (lines.length / 3);
+
+        //--- position buffer -------
+        pyramidVertexPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, pyramidVertexPositionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        pyramidVertexPositionBuffer.itemSize = 3;
+        pyramidVertexPositionBuffer.numItems = pyramydVertices.length;
+
+        //--- vertex buffer ---------
+        pyramidVertexIndexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, pyramidVertexIndexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, 
+            new Uint16Array( piramidIndeces ), gl.STATIC_DRAW);
+        pyramidVertexIndexBuffer.itemSize = 1;
+        pyramidVertexIndexBuffer.numItems = piramidIndeces.length;
+
+
+
+        //--- normals buffer ---------
+        pyramidNormalsBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, pyramidNormalsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+        pyramidNormalsBuffer.itemSize = 3;
+        pyramidNormalsBuffer.numItems = normals.length;
+
+
+
+        //--- lines buffer ----------------------
+        linesBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, linesBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lines), gl.STATIC_DRAW);
+        linesBuffer.itemSize = 3;
+        linesBuffer.numItems = lines.length / linesBuffer.itemSize;
+
+
+
+
+        //--- gear -----------------------------------------
+        var gear = new Gear(60);
+        log (gear);
+        //log (gear.numVertices());
+        gearVertexPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, gearVertexPositionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( gear.vertices ), gl.STATIC_DRAW);
+        gearVertexPositionBuffer.itemSize = gear.itemSize;
+        gearVertexPositionBuffer.numItems = gear.numVertices();
+
+
+
+        gearVertexIndexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gearVertexIndexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, 
+            new Uint16Array( gear.indices ), gl.STATIC_DRAW);
+        gearVertexIndexBuffer.itemSize = 1;
+        gearVertexIndexBuffer.numItems = gear.indices.length;
+
+    }
+
+    function toFlat (arr)
+    {
+        var a = [];
+        return a.concat.apply (a, arr);
+    }
+
+    var rPyramid = 0;
+    var rCube = 0;
+
+    var mvMatrix = mat4.create();
+    var mvMatrixStack = [];
+    var pMatrix = mat4.create();
+
+    function mvPushMatrix() {
+        var copy = mat4.create();
+        mat4.set(mvMatrix, copy);
+        mvMatrixStack.push(copy);
+    }
+
+    function mvPopMatrix() {
+        if (mvMatrixStack.length == 0) {
+            throw "Invalid popMatrix!";
+        }
+        mvMatrix = mvMatrixStack.pop();
+    }
+
+
+    function setMatrixUniforms() {
+        gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+
+        var normalMatrix = mat4.create();
+       
+        mat4.identity (normalMatrix);
+        // log ( normalMatrix );
+        mat4.inverse(mvMatrix, normalMatrix);
+
+        mat4.transpose(normalMatrix);
+        
+        gl.uniformMatrix4fv(shaderProgram.nMatrixUniform, false, normalMatrix);
+    }
+
+    function computeNormalMatrix(matrix, normal) 
+    {
+        //var e = matrix.elements;
+        var e = matrix;
+
+        var det = (e[0 * 4 + 0] * (e[1 * 4 + 1] * e[2 * 4 + 2] -
+                                   e[2 * 4 + 1] * e[1 * 4 + 2]) -
+                   e[0 * 4 + 1] * (e[1 * 4 + 0] * e[2 * 4 + 2] -
+                                   e[1 * 4 + 2] * e[2 * 4 + 0]) +
+                   e[0 * 4 + 2] * (e[1 * 4 + 0] * e[2 * 4 + 1] -
+                                   e[1 * 4 + 1] * e[2 * 4 + 0]));
+        var invDet = 1. / det;
+
+        normal[0 * 3 + 0] = invDet * (e[1 * 4 + 1] * e[2 * 4 + 2] -
+                                      e[2 * 4 + 1] * e[1 * 4 + 2]);
+        normal[1 * 3 + 0] = invDet * -(e[0 * 4 + 1] * e[2 * 4 + 2] -
+                                       e[0 * 4 + 2] * e[2 * 4 + 1]);
+        normal[2 * 3 + 0] = invDet * (e[0 * 4 + 1] * e[1 * 4 + 2] -
+                                      e[0 * 4 + 2] * e[1 * 4 + 1]);
+        normal[0 * 3 + 1] = invDet * -(e[1 * 4 + 0] * e[2 * 4 + 2] -
+                                       e[1 * 4 + 2] * e[2 * 4 + 0]);
+        normal[1 * 3 + 1] = invDet * (e[0 * 4 + 0] * e[2 * 4 + 2] -
+                                      e[0 * 4 + 2] * e[2 * 4 + 0]);
+        normal[2 * 3 + 1] = invDet * -(e[0 * 4 + 0] * e[1 * 4 + 2] -
+                                       e[1 * 4 + 0] * e[0 * 4 + 2]);
+        normal[0 * 3 + 2] = invDet * (e[1 * 4 + 0] * e[2 * 4 + 1] -
+                                      e[2 * 4 + 0] * e[1 * 4 + 1]);
+        normal[1 * 3 + 2] = invDet * -(e[0 * 4 + 0] * e[2 * 4 + 1] -
+                                       e[2 * 4 + 0] * e[0 * 4 + 1]);
+        normal[2 * 3 + 2] = invDet * (e[0 * 4 + 0] * e[1 * 4 + 1] -
+                                      e[1 * 4 + 0] * e[0 * 4 + 1]);
+
+        return normal;
+    }
+
+    var mvp = mat4.create();
+    var normMatrix = mat4.create();
+    function drawScene() {
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        //--- матрицы --------------------------------
+
+        // TODO: move as unchanged to init
+        mat4.identity( pMatrix );
+        //mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+
+        mat4.identity(mvMatrix);
+
+        mat4.translate(mvMatrix, [0.0, 0.0, -1.1]);
+
+        //--- источники света ---
+       // mat4.identity( mvp );
+       // mat4.multiply (mvp, mvMatrix);
+       // mat4.multiply (mvp, pMatrix);
+       // configureLightAndMaterial( mvp );
+
+        //--- geometry -----------
+        mvPushMatrix();
+        mat4.rotate(mvMatrix, degToRad(rPyramid), [0, 1, 0]);
+
+       // mat4.identity( mvp );
+        //mat4.multiply (mvp, mvMatrix);
+        //mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, mvp);
+       // mat4.multiply (mvp, pMatrix);
+
+        //--- setup in shader
+        //mat4.multiply ( mvMatrix, pMatrix);
+        //mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, mvMatrix);
+        gl.uniformMatrix4fv(shaderProgram.mvpUniform, false, mvMatrix);
+        gl.uniformMatrix4fv(shaderProgram.normalMatrixUniform, false, computeNormalMatrix( mvMatrix, normMatrix ));
+
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, pyramidNormalsBuffer);
+        gl.vertexAttribPointer(shaderProgram.normalsAttribute, pyramidNormalsBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+/*        gl.bindBuffer(gl.ARRAY_BUFFER, linesBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+        
+        gl.drawArrays(gl.LINES, 0, linesBuffer.numItems);*/
+
+
+        //return;
+
+
+
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, pyramidVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, pyramidVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+
+
+        gl.uniform4f(shaderProgram.colorUniform, 0.0, 1.0, 0.0, 1.0);
+
+        //--- ligting --------------------------------
+
+        //gl.uniform1i(shaderProgram.useLightingUniform, true);
+       // gl.uniform3f(shaderProgram.ambientColorUniform, 0.7, 0.7, 0.7);
+
+
+        //gl.uniform3f(shaderProgram.directionalColorUniform, 0.5, 0.5, 0.5);
+
+
+        //--- index buffer -----------------
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, pyramidVertexIndexBuffer);
+        //gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+        //setMatrixUniforms();
+        gl.drawElements ( gl.TRIANGLES, pyramidVertexIndexBuffer.numItems,  gl.UNSIGNED_SHORT, 0);
+
+        //gl.drawElements ( gl.LINES, pyramidVertexIndexBuffer.numItems,  gl.UNSIGNED_SHORT, 0);
+        //gl.drawArrays(gl.TRIANGLES, 0, 6);
+        //gl.drawArrays( gl.TRIANGLE_FAN, 0, pyramidVertexPositionBuffer.numItems  );
+
+        //-- drew lines -------
+        //gl.uniform1i(shaderProgram.useLightingUniform, false);
+
+
+
+
+        mvPopMatrix();
+
+
+        return;
+        //--- gear drawing ------------------------------
+        gl.uniform1i(shaderProgram.useLightingUniform, false);
+        mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);
+        mvPushMatrix();
+
+        mat4.rotate(mvMatrix, degToRad(rCube), [1, 1, 1]);
+        gl.bindBuffer(gl.ARRAY_BUFFER, gearVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, gearVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gearVertexIndexBuffer);
+
+        setMatrixUniforms();
+
+        gl.drawElements(gl.TRIANGLES, gearVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        //gl.drawArrays(gl.TRIANGLE_STRIP, 0, gearVertexPositionBuffer.numItems  );
+        mvPopMatrix();
+
+    }
+
+
+    function initNotChangedUniforms()
+    {
+        // bind non-changing lighting parameters
+        //litShader.bind();
+        gl.uniform4f(shaderProgram.ambientUniform, .2, .2, .2, 1.);
+        gl.uniform4f(shaderProgram.light_0_diffuseUniform, 1., .4, 0, 1.);
+        gl.uniform4f(shaderProgram.light_1_diffuseUniform, .07, .14, .35, 1.);
+        gl.uniform4f(shaderProgram.light_2_diffuseUniform, .07, .17, .14, 1.);
+        gl.uniform4f(shaderProgram.light_0_specularUniform, 1., 1., 1., 1.);
+        gl.uniform1f(shaderProgram.shininessUniform, 60.);
+    }
+
+
+    function configureLightAndMaterial( mvp ) 
+    {
+        //modelview.transform3([-4., 1., 1.]);
+        var light0Direction = mat4.multiplyVec3(mvp, [-4., 1., 1.]);
+        var light1Direction = mat4.multiplyVec3(mvp, [1., -2., -1.]);
+        var light2Direction = mat4.multiplyVec3(mvp, [-1., 0., -4.]);
+
+        //litShader.bind();
+
+        gl.uniform3f(shaderProgram.light_0_directionUniform,
+                     light0Direction[0],
+                     light0Direction[1],
+                     light0Direction[2]);
+        gl.uniform3f(shaderProgram.light_1_directionUniform,
+                     light1Direction[0],
+                     light1Direction[1],
+                     light1Direction[2]);
+        gl.uniform3f(shaderProgram.light_2_directionUniform,
+                     light2Direction[0],
+                     light2Direction[1],
+                     light2Direction[2]);
+    }
+
+
+    var lastTime = 0;
+
+    function animate() {
+        var timeNow = new Date().getTime();
+        if (lastTime != 0) {
+            var elapsed = timeNow - lastTime;
+
+            rPyramid += (90 * elapsed) / 1000.0;
+            rCube -= (75 * elapsed) / 1000.0;
+        }
+        lastTime = timeNow;
+    }
+
+
+    function tick() {
+        //requestAnimFrame(tick);
+        drawScene();
+        animate();
+    }
+
+
+    function webGLStart() {
+        var canvas = document.getElementById("lesson04-canvas");
+        initGL(canvas);
+        initShaders()
+        //return;
+        initNotChangedUniforms();
+        initBuffers();
+
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.enable(gl.DEPTH_TEST);
+
+        tick();
+    }
+
+
+
+
+    function log ()
+    {
+        console.log.apply( console, arguments );
+        //alert ( arguments[0] );
+    }
+
+
+</script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+    
+
+    <canvas id="lesson04-canvas" style="border: none;" width="500" height="500"></canvas>
+
+   <br/> 
+   <input type="range" name="points" min="0" max="50" onchange="tick();" style="width: 200px; height: 20px;">
+</body>
+
+</html>

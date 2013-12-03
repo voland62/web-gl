@@ -1,0 +1,445 @@
+<html>
+
+<head>
+<title>Game of Life</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<script type="text/javascript" src="webgl-utils.js"></script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+
+    attribute vec3 aVertexPosition;
+    varying vec4 vColor;
+    
+    void main(void) 
+    {
+        vColor = vec4(0.0, 1.0, 0.0, 1.0);
+        gl_Position = vec4(aVertexPosition, 1.0);
+    }
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    uniform sampler2D sampler2d;
+    uniform vec2 texSize;
+   
+    varying vec2 v_texCoord;
+
+    void main(void) 
+    {   
+        vec2 t = gl_FragCoord.xy;
+
+        float n0 =  texture2D(sampler2d, t * texSize ).r;
+
+        float n1 = texture2D(sampler2d, (t + vec2(-1.0, -1.0)) * texSize ).r;
+        float n2 = texture2D(sampler2d, vec2(t.x, t.y - 1.0) * texSize ).r;
+        float n3 = texture2D(sampler2d, vec2(t.x + 1.0, t.y - 1.0) * texSize ).r;
+        float n4 = texture2D(sampler2d, vec2(t.x - 1.0, t.y) * texSize ).r;
+        float n5 = texture2D(sampler2d, vec2(t.x + 1.0, t.y) * texSize ).r;
+        float n6 = texture2D(sampler2d, vec2(t.x - 1.0, t.y + 1.0) * texSize ).r;
+        float n7 = texture2D(sampler2d, vec2(t.x, t.y + 1.0) * texSize ).r;
+        float n8 = texture2D(sampler2d, vec2(t.x + 1.0, t.y + 1.0) * texSize ).r;
+
+        float sum = n1 + n2 + n3 + n4 + n5 + n6 + n7 + n8;
+ 
+        vec4 color = vec4(0.0, 0.0, 0.0, 1.0);  
+
+        if ( n0 > 0.0 ) // alive
+        {
+            if ( (sum >= 2.0) && (sum <= 3.0))
+            {
+                color = vec4(1.0, 0.0, 1.0, 1.0);
+            }
+
+        }else // dead
+        {
+            if ( sum == 3.0)
+            {
+                color = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        }
+
+        gl_FragColor = color;
+    }
+</script>
+
+
+<!-- шэйдеры для рэндера в системный(экранный) буффер -->
+
+<script id="shader-vs-final" type="x-shader/x-vertex">
+    attribute vec2 vTexCoord;
+    attribute vec2 aVertexPosition;
+
+    varying vec2 v_texCoord;
+
+    void main()
+    {
+        gl_Position = vec4( aVertexPosition, 0.0, 1.0);
+        v_texCoord = vTexCoord;
+    }
+</script>
+
+<script id="shader-fs-final" type="x-shader/x-fragment">
+    precision mediump float;
+
+    uniform vec2 texSize;
+    uniform sampler2D sampler2d;
+
+    varying vec2 v_texCoord;
+
+    void main()
+    {
+        vec4 color = texture2D(sampler2d, v_texCoord);
+        gl_FragColor = color;//vec4(1.0, 0.0, 0.0, 1);
+    }
+</script>
+
+
+
+
+
+
+<script type="text/javascript">
+
+    var gl;
+
+    function initGL(canvas) {
+        try {
+            gl = canvas.getContext("experimental-webgl");
+            gl.viewportWidth = canvas.width;
+            gl.viewportHeight = canvas.height;
+        } catch (e) {
+        }
+        if (!gl) {
+            alert("Could not initialise WebGL, sorry :-(");
+        }
+    }
+
+
+    function getShader(gl, id) {
+        var shaderScript = document.getElementById(id);
+        if (!shaderScript) {
+            return null;
+        }
+
+        var str = "";
+        var k = shaderScript.firstChild;
+        while (k) {
+            if (k.nodeType == 3) {
+                str += k.textContent;
+            }
+            k = k.nextSibling;
+        }
+
+        var shader;
+        if (shaderScript.type == "x-shader/x-fragment") {
+            shader = gl.createShader(gl.FRAGMENT_SHADER);
+        } else if (shaderScript.type == "x-shader/x-vertex") {
+            shader = gl.createShader(gl.VERTEX_SHADER);
+        } else {
+            return null;
+        }
+
+        gl.shaderSource(shader, str);
+        gl.compileShader(shader);
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert(gl.getShaderInfoLog(shader));
+            return null;
+        }
+
+        return shader;
+    }
+
+
+    var shaderProgram;
+    var shaderProgramFinal;
+
+    function initShaders() 
+    {
+        shaderProgramFinal = initShaderProgram("shader-vs-final", "shader-fs-final");
+        shaderProgram = initShaderProgram("shader-vs-final", "shader-fs");
+    }
+
+
+    function initShaderProgram( vs, fs )
+    {
+        var fragmentShader = getShader(gl, vs);
+        var vertexShader = getShader(gl, fs);
+
+        shpr = gl.createProgram();
+        gl.attachShader(shpr, vertexShader);
+        gl.attachShader(shpr, fragmentShader);
+        gl.linkProgram(shpr);
+
+        if (!gl.getProgramParameter(shpr, gl.LINK_STATUS)) {
+            log("Could not initialise shaders");
+        }
+
+
+        shpr.vertexPositionAttribute = gl.getAttribLocation(shpr, "aVertexPosition");
+        gl.enableVertexAttribArray(shpr.vertexPositionAttribute);
+
+
+        shpr.textureCoordsAttribute = gl.getAttribLocation(shpr, "vTexCoord");
+        gl.enableVertexAttribArray(shpr.textureCoordsAttribute);
+        shpr.samplerUniform = gl.getUniformLocation(shpr, "sampler2d");
+        shpr.texSizeUniform = gl.getUniformLocation(shpr, "texSize");
+
+        return shpr;
+    }
+
+
+    var linesPositionBuffer;
+    var linesVertexBuffer;
+
+    var rectVertexBuffer;
+    var textCoordBuffer;
+    var texture;
+
+    function initBuffers() 
+    {
+        //--- rect ------------
+        var rectVertices = [    -1,-1
+                                ,-1,1
+                                ,1,-1
+                                ,1,1
+                                ];
+        rectVertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, rectVertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( rectVertices ), gl.STATIC_DRAW);
+        rectVertexBuffer.itemSize = 2;
+        rectVertexBuffer.numItems = rectVertices.length;
+
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, rectVertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.vertexAttribPointer(shaderProgramFinal.vertexPositionAttribute, rectVertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+
+
+        var textCoords = [
+                            0,0,
+                            0,1,
+                            1,0,
+                            1,1
+        ]
+
+        textCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, textCoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( textCoords ), gl.STATIC_DRAW);
+        textCoordBuffer.itemSize = 2;
+        textCoordBuffer.numItems = textCoords.length;
+
+        gl.vertexAttribPointer(shaderProgramFinal.textureCoordsAttribute, textCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+ 
+        gl.vertexAttribPointer(shaderProgram.textureCoordsAttribute, textCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        gl.useProgram(shaderProgram);
+        gl.uniform2f ( shaderProgram.texSizeUniform , 1/frontTarget.width, 1/frontTarget.height);        
+
+        gl.useProgram(shaderProgramFinal);
+        gl.uniform2f ( shaderProgramFinal.texSizeUniform , 1/frontTarget.width, 1/frontTarget.height);
+
+
+        //---  init texture -----------------
+        //texture = loadImageTexture (gl, "deva.jpg");
+
+    }
+
+
+    function drawScene() 
+    {    
+        drawInFramebuffer();
+        drawFromFramebufferToScreen();
+
+        // --- swap -----------
+        var tmp = frontTarget;
+        frontTarget = backTarget;
+        backTarget = tmp;
+
+        //--- request next frame ---------
+        requestAnimFrame(drawScene);
+    }
+
+    function drawInFramebuffer()
+    {
+        gl.useProgram(shaderProgram);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, frontTarget.framebuffer);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        //gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, backTarget.texture );
+        //gl.bindTexture(gl.TEXTURE_2D, randText );
+        //gl.uniform1i(shaderProgramFinal.samplerUniform, 0);
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+        //var pixels = new Uint8Array(20 * 20);
+        //gl.readPixels( 0, 0, 20, 20, gl.RGBA, gl.UNSIGNED_BYTE, pixels );
+        //log ( pixels );
+
+    }
+
+    function drawFromFramebufferToScreen()
+    {
+        gl.useProgram(shaderProgramFinal);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        //gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, frontTarget.texture );
+        //gl.bindTexture(gl.TEXTURE_2D, randText );
+        //gl.uniform1i(shaderProgramFinal.samplerUniform, 0);
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+
+    var frontTarget;
+    var backTarget;
+
+    function initFramebuffer( w, h) {
+
+        frontTarget = createTarget( w, h );
+        backTarget = createTarget( w, h );
+    }
+
+
+
+    function createTarget( width, height ) {
+
+        var target = {"width": width, "height" : height};
+
+        target.framebuffer = gl.createFramebuffer();
+        //target.renderbuffer = gl.createRenderbuffer();
+        target.texture = createCheckerboardTexture( width, height);//gl.createTexture();
+
+        // set up framebuffer
+
+        gl.bindFramebuffer( gl.FRAMEBUFFER, target.framebuffer );
+        gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, target.texture, 0 );
+
+        // set up renderbuffer
+
+        //gl.bindRenderbuffer( gl.RENDERBUFFER, target.renderbuffer );
+
+        //gl.renderbufferStorage( gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height );
+        //gl.framebufferRenderbuffer( gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, target.renderbuffer );
+
+        //log ( gl.checkFramebufferStatus( gl.FRAMEBUFFER ) );
+
+
+        // clean up
+
+        gl.bindTexture( gl.TEXTURE_2D, null );
+        //gl.bindRenderbuffer( gl.RENDERBUFFER, null );
+        gl.bindFramebuffer( gl.FRAMEBUFFER, null);
+
+        return target;
+    }
+
+
+
+    //------------------------------------
+    function webGLStart() {
+        var canvas = document.getElementById("lesson04-canvas");
+        initGL(canvas);
+        initShaders()
+        initFramebuffer( 512, 512 );
+        //initFramebuffer( 1024, 1024 );
+        initBuffers();
+
+        drawScene();
+    }
+
+
+    //----------------------------------------------
+    // End of business stuff
+    //----------------------------------------------
+
+    function createCheckerboardTexture( width, height) {
+
+        var pixels = [];
+
+        for (var w = 0; w < width; w++) {
+           for (var h = 0; h < height; h++) {
+                var on = Math.round(Math.random ());
+                pixels.push ( on * 255, on * 255, on * 255);
+           };
+        };
+
+        pixels = new Uint8Array( pixels );
+
+        var texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+        //  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        //  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        //gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, pixels);
+        return texture;
+    }
+
+    function log ()
+    {
+        console.log.apply( console, arguments );
+        //alert ( arguments[0] );
+    }
+
+    var g_loadingImages = [];
+    function loadImageTexture(ctx, url)
+    {
+        var texture = ctx.createTexture();
+        var image = new Image();
+        g_loadingImages.push(image);
+        image.onload = function() { doLoadImageTexture(ctx, image, texture) }
+        image.src = url;
+        return texture;
+    }
+
+    function doLoadImageTexture(ctx, image, texture)
+    {
+       //drawScene();
+
+      // return;
+
+        g_loadingImages.splice(g_loadingImages.indexOf(image), 1);
+        ctx.bindTexture(ctx.TEXTURE_2D, texture);
+        ctx.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        ctx.texImage2D(
+            ctx.TEXTURE_2D, 0, ctx.RGBA, ctx.RGBA, ctx.UNSIGNED_BYTE, image);
+        //  return;
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.LINEAR);
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.LINEAR);
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_S, ctx.CLAMP_TO_EDGE);
+        ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_T, ctx.CLAMP_TO_EDGE);
+        //ctx.generateMipmap(ctx.TEXTURE_2D)
+        ctx.bindTexture(ctx.TEXTURE_2D, null);
+        
+        
+    }
+
+
+
+</script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+    
+
+    <canvas id="lesson04-canvas" style="border: none;" width="512" height="512"></canvas>
+
+   <br/> 
+   <input type="range" name="points" min="0" max="50" onchange="drawScene();" style="width: 200px; height: 20px;">
+</body>
+
+</html>

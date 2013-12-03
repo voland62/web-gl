@@ -1,0 +1,561 @@
+<html>
+
+<head>
+<title>Learning WebGL &mdash; lesson 4</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="Gear.js"></script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying float v_Dot;
+    varying vec4 vColor;
+    
+    void main(void) {
+        vec4 color = vColor;
+        color += vec4(0.1, 0.1, 0.1, 1);
+        gl_FragColor = vec4(vColor.xyz * v_Dot, vColor.a);
+    }
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec3 aNormal;
+    //attribute vec4 aColor;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+    uniform mat4 uNMatrix;
+    uniform vec3 lightDir;
+    //uniform bool uUseLighting;
+    uniform vec4 uColor;
+
+    varying vec4 vColor;
+    varying float v_Dot;
+    
+
+    void main(void) 
+    {
+        vColor = uColor;//vec4(0.0, 1.0, 0.0, 1.0);
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        //v_Dot = 1.0;
+        vec4 transNormal = uNMatrix * vec4(aNormal, 1);
+        v_Dot = max(dot(transNormal.xyz, lightDir), 0.0);
+
+    }
+</script>
+
+
+<script type="text/javascript">
+
+    var gl;
+
+    function initGL(canvas) {
+        try {
+            gl = canvas.getContext("experimental-webgl");
+            gl.viewportWidth = canvas.width;
+            gl.viewportHeight = canvas.height;
+        } catch (e) {
+        }
+        if (!gl) {
+            alert("Could not initialise WebGL, sorry :-(");
+        }
+    }
+
+
+    function getShader(gl, id) {
+        var shaderScript = document.getElementById(id);
+        if (!shaderScript) {
+            return null;
+        }
+
+        var str = "";
+        var k = shaderScript.firstChild;
+        while (k) {
+            if (k.nodeType == 3) {
+                str += k.textContent;
+            }
+            k = k.nextSibling;
+        }
+
+        var shader;
+        if (shaderScript.type == "x-shader/x-fragment") {
+            shader = gl.createShader(gl.FRAGMENT_SHADER);
+        } else if (shaderScript.type == "x-shader/x-vertex") {
+            shader = gl.createShader(gl.VERTEX_SHADER);
+        } else {
+            return null;
+        }
+
+        gl.shaderSource(shader, str);
+        gl.compileShader(shader);
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert(gl.getShaderInfoLog(shader));
+            return null;
+        }
+
+        return shader;
+    }
+
+
+    var shaderProgram;
+
+    function initShaders() {
+        var fragmentShader = getShader(gl, "shader-fs");
+        var vertexShader = getShader(gl, "shader-vs");
+
+        shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        gl.linkProgram(shaderProgram);
+
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            alert("Could not initialise shaders");
+        }
+
+        gl.useProgram(shaderProgram);
+
+        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+        shaderProgram.normalsAttribute = gl.getAttribLocation(shaderProgram, "aNormal");
+        gl.enableVertexAttribArray(shaderProgram.normalsAttribute);
+
+        //shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aColor");
+        //gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+
+
+        shaderProgram.colorUniform = gl.getUniformLocation(shaderProgram, "uColor");
+
+        shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+        shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+        //shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+        //shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "uUseLighting");
+        //shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+        shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "lightDir");
+        //shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+    }
+
+
+    var mvMatrix = mat4.create();
+    var mvMatrixStack = [];
+    var pMatrix = mat4.create();
+
+    function mvPushMatrix() {
+        var copy = mat4.create();
+        mat4.set(mvMatrix, copy);
+        mvMatrixStack.push(copy);
+    }
+
+    function mvPopMatrix() {
+        if (mvMatrixStack.length == 0) {
+            throw "Invalid popMatrix!";
+        }
+        mvMatrix = mvMatrixStack.pop();
+    }
+
+
+    function setMatrixUniforms() {
+        gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+
+        var normalMatrix = mat4.create();
+       
+        mat4.identity (normalMatrix);
+        // log ( normalMatrix );
+        mat4.inverse(mvMatrix, normalMatrix);
+
+        mat4.transpose(normalMatrix);
+        
+        gl.uniformMatrix4fv(shaderProgram.nMatrixUniform, false, normalMatrix);
+    }
+
+
+    function degToRad(degrees) {
+        return degrees * Math.PI / 180;
+    }
+
+
+    var pyramidVertexPositionBuffer;
+    var pyramidColorsPositionBuffer;
+    var pyramidNormalsBuffer;
+    var pyramidVertexIndexBuffer;
+
+    var linesBuffer;
+    //var linesIndecesBuffer;
+
+    var cubeVertexPositionBuffer;
+    var cubeVertexColorBuffer;
+    var cubeVertexIndexBuffer;
+    var gearVertexPositionBuffer;
+    var gearNormalsBuffer;
+    //var gearVertexColorBuffer;
+    var gearVertexIndexBuffer;
+
+    function initBuffers() {
+
+
+        var pyramydVertices = [
+            [0,1,0],
+            [-1,-1,1],
+            [1,-1,1],
+            [1,-1,-1],
+            [-1,-1,-1]
+        ];
+
+        
+        var piramidIndeces = [
+            0,1,2,
+            0,2,3,
+            0,3,4,
+            0,4,1
+
+        ];
+
+        /*
+        var colors = [
+                        1, 0, 0, 1,
+                        1, 0, 0, 1,
+                        1, 0, 0, 1,
+
+                        0, 1, 0, 1,
+                        0, 1, 0, 1
+                        ,0, 1, 0, 1,
+
+                        0, 0, 255, 1,
+                        0, 0, 255, 1,
+                        0, 0, 255, 1,
+
+                        0, 1, 0, 1,
+                        0, 1, 0, 1,
+                        0, 1, 0, 1
+
+        ];
+        */
+
+        var linesVertices = [];
+        //var lineIndeces = [];
+
+        var piramidNormals = [];
+
+        //var piramidTris = [];
+
+        for (var i = 0; i < piramidIndeces.length; i += 3) {
+            var p0 = pyramydVertices[ piramidIndeces[i] ];
+            var p1 = pyramydVertices[ piramidIndeces[i + 1]];
+            var p2 = pyramydVertices[ piramidIndeces[i + 2]];
+
+            var v1 = vec3.subtract(p1, p0, []); //p1 - p0;
+            var v2 = vec3.subtract(p1, p2, []); //p1 - p2;
+
+            var norm =  vec3.cross(v2, v1);// v1 * v2;
+            //log( norm);
+
+            vec3.normalize(norm ,norm);
+            //log( norm);
+            
+
+            piramidNormals.push( norm, norm, norm);
+
+           // piramidTris.push (p0, p1, p2);
+
+            //--- lines ---------------
+            //linesVertices.push ( p0 , vec3.add(p0, norm, []));
+            //linesVertices.push ( p1 , vec3.add(p1, norm, []));
+            //linesVertices.push ( p2 , vec3.add(p2, norm, []));
+
+            //lineIndeces.push ( i , i + 1, i + 2, i + 3, i + 4, i + 5); glvao
+             
+        };
+
+
+        //var piramidTriangles = toFlat( piramidTris );
+
+        var vertices = toFlat( pyramydVertices );
+        var normals = toFlat( piramidNormals );
+        log (normals.length);
+        var lines = toFlat( linesVertices );
+
+/*        lines = [
+                    0,1,2,
+                    4,5,6.23423,
+                    0,1,2,
+                    4,5,6,
+                    0,1,2,
+                    4,5,6,
+                    0,1,2,
+                    4,5,6,
+                    0,1,2,
+                    4,5,6.23423,
+                    0,1,2,
+                    4,5,6,
+                    0,1,2,
+                    4,5,6
+                    
+                    ];*/
+        // log( lines );
+        //log (piramidNormals.length);
+        //log (lines.length / 3);
+
+        //--- position buffer -------
+        pyramidVertexPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, pyramidVertexPositionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        pyramidVertexPositionBuffer.itemSize = 3;
+        pyramidVertexPositionBuffer.numItems = pyramydVertices.length;        
+
+        //--- colors buffer -------
+        /*
+        pyramidColorsPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, pyramidColorsPositionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+        pyramidColorsPositionBuffer.itemSize = 4;
+        pyramidColorsPositionBuffer.numItems = colors.length;
+        */
+
+        //--- vertex buffer ---------
+        pyramidVertexIndexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, pyramidVertexIndexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, 
+            new Uint16Array( piramidIndeces ), gl.STATIC_DRAW);
+        pyramidVertexIndexBuffer.itemSize = 1;
+        pyramidVertexIndexBuffer.numItems = piramidIndeces.length;
+
+
+
+        //--- normals buffer ---------
+        pyramidNormalsBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, pyramidNormalsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+        pyramidNormalsBuffer.itemSize = 3;
+        pyramidNormalsBuffer.numItems = normals.length;
+
+
+        // return;
+
+
+        //--- lines buffer ----------------------
+        linesBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, linesBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lines), gl.STATIC_DRAW);
+        linesBuffer.itemSize = 3;
+        linesBuffer.numItems = lines.length / linesBuffer.itemSize;
+
+
+
+
+        //--- gear ----------------------------------------- 
+
+       
+
+        var gear = new Gear(60);
+        //log (gear);
+        //log (gear.numVertices());
+        gearVertexPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, gearVertexPositionBuffer);
+        //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( gear.vertices ), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( gear.triangles ), gl.STATIC_DRAW);
+        gearVertexPositionBuffer.itemSize = gear.itemSize;
+        gearVertexPositionBuffer.numItems =  gear.triangles.length / 3; //gear.numVertices();
+
+
+        //--- normals buffer ---------
+        gearNormalsBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, gearNormalsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(gear.normals), gl.STATIC_DRAW);
+        gearNormalsBuffer.itemSize = 3;
+        gearNormalsBuffer.numItems = normals.length;
+
+        //--- gear's indeses -------------
+        gearVertexIndexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gearVertexIndexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, 
+            new Uint16Array( gear.indices ), gl.STATIC_DRAW);
+        gearVertexIndexBuffer.itemSize = 1;
+        gearVertexIndexBuffer.numItems = gear.indices.length;
+
+    }
+
+    function toFlat (arr)
+    {
+        var a = [];
+        return a.concat.apply (a, arr);
+    }
+
+    var rPyramid = 0;
+    var rCube = 0;
+
+    function drawScene() {
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+
+        mat4.identity(mvMatrix);
+
+        mat4.translate(mvMatrix, [ -2.0, 0.0, -10.0]);
+
+        mvPushMatrix();
+        mat4.rotate(mvMatrix, degToRad(rPyramid), [0, 1, 0]);
+
+
+        var lightingDirection = [0,1,1];
+        //var adjustedLD = vec3.create();
+        //vec3.normalize(lightingDirection, adjustedLD);
+       // vec3.scale(adjustedLD, -1);
+        gl.uniform3fv(shaderProgram.lightingDirectionUniform, lightingDirection);
+        gl.uniform4f(shaderProgram.colorUniform, 1.0, 0.0, 0.0, 1.0);
+        setMatrixUniforms();
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, pyramidNormalsBuffer);
+        gl.vertexAttribPointer(shaderProgram.normalsAttribute, pyramidNormalsBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+/*        gl.bindBuffer(gl.ARRAY_BUFFER, linesBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+        
+        gl.drawArrays(gl.LINES, 0, linesBuffer.numItems);*/   
+
+
+        //return;
+
+
+
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, pyramidVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, pyramidVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        //gl.bindBuffer(gl.ARRAY_BUFFER, pyramidColorsPositionBuffer);
+        //gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, pyramidColorsPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+
+
+        gl.uniform4f(shaderProgram.colorUniform, 0.0, 1.0, 0.0, 1.0);
+
+        //--- ligting --------------------------------
+
+        //gl.uniform1i(shaderProgram.useLightingUniform, true);
+       // gl.uniform3f(shaderProgram.ambientColorUniform, 0.7, 0.7, 0.7);
+
+
+        //gl.uniform3f(shaderProgram.directionalColorUniform, 0.5, 0.5, 0.5);
+
+
+
+       
+
+
+        //--- index buffer -----------------
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, pyramidVertexIndexBuffer);
+        //gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+        //setMatrixUniforms();
+        gl.drawElements ( gl.TRIANGLES, pyramidVertexIndexBuffer.numItems,  gl.UNSIGNED_SHORT, 0);
+
+        //gl.drawElements ( gl.LINES, pyramidVertexIndexBuffer.numItems,  gl.UNSIGNED_SHORT, 0);
+        //gl.drawArrays(gl.TRIANGLES, 0, 6);
+        //gl.drawArrays( gl.TRIANGLE_FAN, 0, pyramidVertexPositionBuffer.numItems  );
+
+        //-- drew lines -------
+        //gl.uniform1i(shaderProgram.useLightingUniform, false);
+
+
+
+
+        mvPopMatrix();
+
+
+        //return;
+        //--- gear drawing ------------------------------
+        gl.uniform1i(shaderProgram.useLightingUniform, false);
+        mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);
+        mvPushMatrix();
+
+       // mat4.scale (mvMatrix, mvMatrix,  [2, 2, 1]);
+        mat4.rotate(mvMatrix, degToRad(rCube), [1, 1, 1]);
+
+
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, gearNormalsBuffer);
+        gl.vertexAttribPointer(shaderProgram.normalsAttribute, gearNormalsBuffer.itemSize, gl.FLOAT, false, 0, 0);  
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, gearVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, gearVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+
+      
+
+
+        //gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gearVertexIndexBuffer);
+
+        setMatrixUniforms();
+
+        //gl.drawElements(gl.TRIANGLES, gearVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, gearVertexPositionBuffer.numItems  );
+        mvPopMatrix();
+
+    }
+
+
+    var lastTime = 0;
+
+    function animate() {
+        var timeNow = new Date().getTime();
+        if (lastTime != 0) {
+            var elapsed = timeNow - lastTime;
+
+            rPyramid += (90 * elapsed) / 1000.0;
+            rCube -= (75 * elapsed) / 1000.0;
+        }
+        lastTime = timeNow;
+    }
+
+
+    function tick() {
+        //requestAnimFrame(tick);
+        drawScene();
+        animate();
+    }
+
+
+    function webGLStart() {
+        var canvas = document.getElementById("lesson04-canvas");
+        initGL(canvas);
+        initShaders()
+        initBuffers();
+
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.enable(gl.DEPTH_TEST);
+
+        tick();
+    }
+
+
+
+
+    function log ()
+    {
+        console.log.apply( console, arguments );
+        //alert ( arguments[0] );
+    }
+
+
+</script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+    
+
+    <canvas id="lesson04-canvas" style="border: none;" width="500" height="500"></canvas>
+
+   <br/> 
+   <input type="range" name="points" min="0" max="50" onchange="tick();" style="width: 200px; height: 20px;">
+</body>
+
+</html>

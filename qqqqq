@@ -1,0 +1,212 @@
+//                                                                 in progress...
+
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+uniform float time;
+uniform vec2 mouse;
+uniform vec2 resolution;
+ vec2 q;
+uniform vec2 surfaceSize;
+varying vec2 surfacePosition;
+uniform sampler2D bb;
+
+const vec3 FONT_POINTER = vec3(10.5, 10.5, 1.0);
+
+	
+vec3 rand3( vec2 seed ) {
+	float t = sin(seed.x+seed.y*1e3);
+	return vec3(fract(t*1e4), fract(t*1e6), fract(t*1e5));
+}
+
+
+
+struct circ
+{
+	vec2 centerCoords;
+	float r;
+	vec3 color ;
+};
+
+void drawCirc( circ c, inout vec3 col)	
+{
+	if ( length( q - c.centerCoords) < c.r) 
+		//col = c.color;
+		col += c.color;
+		//col = mix( c.color, vec3(1.0) , col );
+		
+}
+
+struct rect
+{
+	//vec2 coords;
+	vec2 dimentions;
+	vec3 color ;
+	mat3 transform;
+};
+	
+void m_translate( inout mat3 m, vec2 delta)
+{
+	m[2][0] -= delta.x; // x
+	m[2][1]	-= delta.y; // y
+}
+
+void m_rotate( inout mat3 _m, float alpha )
+{
+	mat3 m;
+	m[0][0] = cos( alpha );
+	m[0][1] = -sin( alpha );
+	m[1][0] = sin( alpha );
+	m[1][1] = cos( alpha ) ;
+	_m *= m;
+}
+
+
+bool texelInsideRect( vec2 q_, rect r )
+{
+	return 
+	//step( origine , q_) == vec2(1.0) && 1.0 - step( farCorner, q_ ) == vec2(1.0);
+	all( bvec4 (greaterThan(q_, vec2(0.0) ), lessThan( q_,  r.dimentions)));
+	//( r.coords.x < q.x && q.x < r.coords + r.dimentions.x) &&
+	//	( r.coords.y < q.y && q.y < r.coords + r.dimentions.y);
+}
+
+void drawRect( rect r, inout vec3 col )
+{
+	vec2 q_ = (r.transform * vec3(q, 1.0)).xy;
+	if ( texelInsideRect(q_, r) ) col += r.color; 
+}
+
+
+
+
+
+
+void init( inout float myAlpha )
+{
+	if ( gl_FragCoord.xy == vec2(0.5) ) myAlpha = 1.0;
+	//init
+}
+
+//--- print system ---------------------------------------------------
+const vec2 _dim = vec2(4.0, 4.0);// dimention 3x4 of monotype
+const highp int A_ = 0x2575;//0x57d;
+const highp int b_ = 0x1757;//0x3ef;
+
+const highp int W_=0x5575,H_=0x5755,h_=0x575,O_=0x7557,o_=0x757,E_=0x7717,l_=0x2222,D_=0x3553,R_=0x3535,L_=0x1117; 
+//const highp int l_ = 0x2222;//0x3227;
+//const highp int D_ = 0x3553;//0x3557;
+
+const highp int _s = 0;//0x3ef;
+
+
+int element( ivec4 vec, int index)
+{
+	for (int i = 0; i < 4; i++) if (i == index) return vec[i]; return 0;	
+}
+int element( mat3 m, int index)
+{
+	for (int i = 0; i < 9; i++) if (i == index) return int(m[i/3][ int(mod(float(i),3.0)) ]); return 0;	
+}
+int element( mat4 m, int index)
+{
+	for (int i = 0; i < 16; i++) if (i == index) return int(m[i/4][ int(mod(float(i),4.0)) ]); return 0;	
+}
+
+bool _isInside(vec2 p, vec2 d){ return all( bvec4 (greaterThan(p, vec2(0.0)), lessThan( p, vec2( d.x, d.y ))) );}
+bool _printSymbol( int char, vec2 p )
+{
+	ivec2 pp = ivec2 ( mod ( p , _dim ));
+	int pos = pp.y * int(_dim.x) + pp.x;
+	// were are our old good bitwise shifts?... :)
+	return mod( float( char ) / pow( 2.0, float( pos ) ), 2.0) >= 1.0; 	
+}
+
+bool print ( ivec4 string , vec2 p)
+{
+	if ( !_isInside(p, vec2( 4.0 * _dim.x, _dim.y ))) return false;
+	int char = element( string, int( p.x / _dim.x ));
+	return _printSymbol( char, p ); 	
+}
+
+bool print ( mat3 string , vec2 p)
+{
+	if ( !_isInside(p, vec2( 9.0 * _dim.x, _dim.y ))) return false;
+	int char = element( string, int( p.x / _dim.x ));
+	return _printSymbol( char, p ); 	
+}
+
+bool print ( mat4 string , vec2 p)
+{
+	if ( !_isInside(p, vec2( 16.0 * _dim.x, _dim.y ))) return false;
+	int char = element( string, int( p.x / _dim.x ));
+	return _printSymbol( char, p ); 	
+}
+//---------------------------------------------------------------------------
+
+
+	
+void main( void ) {
+
+	q = gl_FragCoord.xy / resolution.xy;
+	
+	//------------------------------------------------
+	circ a,b;
+	rect r;
+	vec3 col;
+	
+	//if ( print( ivec4(D_,E_,R_,l_), gl_FragCoord.xy *0.125 - vec2(mod(time*10., 50.0), 0.0)) ) col = vec3(1.0);
+	//if ( print( mat4(H_,E_,l_,l_,o_,_s,W_,o_,R_,L_,D_,_s,_s,_s,_s,_s), 
+	//	gl_FragCoord.xy *0.125 - vec2(mod(time*10., 50.0), 0.0)) ) col = vec3(1.0);
+	
+
+	
+	vec4 myColor = texture2D(bb, q);
+	
+	float myAlpha = myColor.a;
+	
+	bool firstTime = !bool( texture2D(bb, vec2(0.0)).a );
+	if ( firstTime) init( myAlpha );
+	
+	a.r = 0.1;
+	a.centerCoords =  -700.0 * surfacePosition / resolution.xy;//vec2(0.15);
+	a.color = vec3(1.0, 0.0, 0.0);
+	
+	b.r = 0.1;
+	b.centerCoords = vec2(0.25);
+	b.color = vec3(0.0, 0.0, 1.0);
+	
+	
+	
+	
+	//r.coords = vec2(0.5);
+	r.dimentions = vec2(0.15);
+	r.color = vec3(0.0, 1.0, 0.0);
+	r.transform = mat3(1.0);
+
+	m_translate( r.transform, vec2(0.50, 0.4) );
+	m_rotate( r.transform , time);
+	
+	const int n = 2;
+	rect _rects[n];
+	for(int i=0; i < n ; i++)
+	{
+		_rects[i].dimentions = vec2(0.15);
+		_rects[i].color = rand3( vec2(i));
+		_rects[i].transform = mat3(1.0);
+		m_translate( _rects[i].transform, _rects[i].color.xy );
+		m_rotate( _rects[i].transform ,   time * (_rects[i].color.x - 0.5));
+		drawRect( _rects[i], col );
+	}
+	
+	drawCirc( a, col );
+	drawCirc( b, col );
+	drawRect( r, col );
+	
+	
+	
+	
+	gl_FragColor = vec4(col , myAlpha);
+	
+}

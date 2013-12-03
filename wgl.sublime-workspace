@@ -1,0 +1,972 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"E",
+				"EMACS_LIVE_DIR"
+			],
+			[
+				"my",
+				"myvfs"
+			],
+			[
+				"file",
+				"fileName"
+			],
+			[
+				"main",
+				"mainLoopTick"
+			],
+			[
+				"init",
+				"initSDL"
+			],
+			[
+				"sys",
+				"SYSTEM_LIBS"
+			],
+			[
+				"S",
+				"SYSTEM_LIBS"
+			],
+			[
+				"LW",
+				"LW6_LIBS"
+			],
+			[
+				"cont",
+				"context3D"
+			],
+			[
+				"loo",
+				"loopPtr"
+			],
+			[
+				"dr",
+				"driver_info"
+			],
+			[
+				"on",
+				"onContext"
+			],
+			[
+				"foo",
+				"fooPtr"
+			],
+			[
+				"CXX",
+				"CXXFLAGS"
+			],
+			[
+				"LD",
+				"LDFLASHXXLIBS"
+			],
+			[
+				"sta",
+				"stagewidth"
+			],
+			[
+				"add",
+				"addEventListener"
+			],
+			[
+				"A",
+				"AS3"
+			],
+			[
+				"L",
+				"LCFG"
+			],
+			[
+				"stat",
+				"static"
+			],
+			[
+				"C",
+				"CFLAGS"
+			],
+			[
+				"F",
+				"FLASH"
+			],
+			[
+				"end",
+				"endif"
+			],
+			[
+				"if",
+				"ifndef"
+			],
+			[
+				"de",
+				"defined"
+			],
+			[
+				"re",
+				"return"
+			],
+			[
+				"b",
+				"build"
+			],
+			[
+				"unde",
+				"undef"
+			],
+			[
+				"res",
+				"result"
+			],
+			[
+				"con",
+				"concat"
+			],
+			[
+				"r",
+				"result"
+			],
+			[
+				"i",
+				"include"
+			],
+			[
+				"e",
+				"export"
+			],
+			[
+				"vec",
+				"vec2"
+			],
+			[
+				"pir",
+				"piramidTris"
+			],
+			[
+				"to",
+				"toFlat"
+			],
+			[
+				"normal",
+				"normals"
+			],
+			[
+				"gea",
+				"gearNormalsBuffer"
+			],
+			[
+				"crea",
+				"createTarget"
+			],
+			[
+				"mv",
+				"mvMatrix"
+			],
+			[
+				"tar",
+				"targetCell"
+			],
+			[
+				"rec",
+				"rect"
+			],
+			[
+				"mo",
+				"mouse"
+			],
+			[
+				"int",
+				"interestCell"
+			],
+			[
+				"in",
+				"interestCell"
+			],
+			[
+				"w",
+				"width"
+			],
+			[
+				"ve",
+				"vec2"
+			],
+			[
+				"pe",
+				"pixels"
+			],
+			[
+				"textur",
+				"texture"
+			],
+			[
+				"fr",
+				"frontTarget"
+			],
+			[
+				"te",
+				"textCoordBuffer"
+			],
+			[
+				"sh",
+				"shader-fs"
+			],
+			[
+				"it",
+				"numItems"
+			],
+			[
+				"lineI",
+				"linesIndecesBuffer"
+			],
+			[
+				"li",
+				"linesBuffer"
+			],
+			[
+				"line",
+				"linesVertices"
+			],
+			[
+				"py",
+				"pyramidNormalsBuffer"
+			],
+			[
+				"no",
+				"normals"
+			],
+			[
+				"nu",
+				"numItems"
+			],
+			[
+				"dra",
+				"drawElements"
+			],
+			[
+				"l",
+				"length"
+			],
+			[
+				"bor",
+				"borderStrip"
+			],
+			[
+				"ne",
+				"newIndeces"
+			],
+			[
+				"p",
+				"push"
+			],
+			[
+				"n",
+				"newIndeces"
+			],
+			[
+				"th",
+				"thickness"
+			],
+			[
+				"ti",
+				"this"
+			],
+			[
+				"po",
+				"polarToCart"
+			],
+			[
+				"for",
+				"for	for (…) {…}"
+			],
+			[
+				"fo",
+				"for	for (…) {…}"
+			],
+			[
+				"fu",
+				"function"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "/D/cygwin/home/Andrew/.emacs",
+			"settings":
+			{
+				"buffer_size": 2317,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Z/Temp/neverball-flascc/neverball-1.5.4/ball/main.c",
+			"settings":
+			{
+				"buffer_size": 14082,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Z/Temp/neverball-flascc/neverball-1.5.4/share/video.c",
+			"settings":
+			{
+				"buffer_size": 8176,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Z/tomcat/webapps/examples/WEB-INF/classes/HelloWorldExample.java",
+			"settings":
+			{
+				"buffer_size": 2730,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Z/Program_Files/Sublime_Text_3/_multiprocessing.pyd",
+			"settings":
+			{
+				"buffer_size": 35840,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Z/Distr3/jogl/stable/jogamp-all-platforms/etc/test.bat",
+			"settings":
+			{
+				"buffer_size": 808,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Z/Temp/a/examples/ru/hello/src/TutorialHelloWorld.as",
+			"settings":
+			{
+				"buffer_size": 1550,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Z/Temp/frogatto-flascc/frogatto/.gitignore",
+			"settings":
+			{
+				"buffer_size": 395,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 58.0,
+		"selected_items":
+		[
+			[
+				"Package Control: install",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Upgrade/Overwrite All Packages"
+			],
+			[
+				"Package",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 400.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Z/Temp/protoc/protobuf-actionscript3-2.3/INSTALL",
+		"/Z/Program_Files/eclipse_clojure/eclipse.ini",
+		"/Z/tomcat/webapps/examples/jsp/chat/index.jsp",
+		"/Z/tomcat/webapps/examples/jsp/source.jsp.html",
+		"/Z/tomcat/webapps/examples/servlets/helloworld.html",
+		"/Z/Temp/fdt/1.31.201.1608/key.txt",
+		"/Z/Temp/fdt/1.31.201.1608/把毛泽东还原成人.txt",
+		"/D/Distr2/reps/clojure_examples/examples/snake.clj",
+		"/D/Distr2/reps/clojure_examples/examples/atom_snake.clj",
+		"/Z/Distr3/jogl/stable/jogamp-all-platforms/lib/README.txt",
+		"/D/work/workspaces/clojure_ws/myproject/src/myproject/clojure_fx.clj",
+		"/D/cygwin/home/Andrew/work/maze/src/main_gui.fxml",
+		"/D/Distr2/reps/robotlegs-examples-flickrGallagy/src/robotlegs/bender/demos/imagegallery/model/GalleryModel.as",
+		"/D/Distr2/reps/emacs-live/init.el",
+		"/D/Distr2/reps/prelude/init.el",
+		"/D/Distr2/reps/prelude/README.md",
+		"/D/Distr2/reps/prelude/.projectile",
+		"/Z/Temp/neverball-flascc/neverball-1.5.4/share/video.h",
+		"/Z/Books3/Худ.лит/Славяне.txt.txt",
+		"/D/cygwin/home/Andrew/ .emacs",
+		"/Z/Temp/neverball-flascc/compiling-opengl-games/ball_main.c",
+		"/Z/Temp/flascc_samples/02_Interop/hellointerop.c",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/Makefile",
+		"/Z/Temp/neverball-flascc/compiling-opengl-games/Makefile",
+		"/D/Distr2/reps/las3r/etc/eval_pipe.rb",
+		"/D/Distr2/reps/las3r/etc/las3r-mode.el",
+		"/D/cygwin/home/Andrew/.emacs",
+		"/D/Distr2/reps/las3r/src/lsr/las3r.core.lsr",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/gfx-testmain-flash.c",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/Console.as",
+		"/Z/Temp/flascc_samples/07_FileSystem/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/my_image.c",
+		"/Z/Temp/flascc_samples/07_FileSystem/Console.as",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/test_vfs/generated_fs/myvfsprefix_000000.as",
+		"/Z/Temp/neverball-flascc/compiling-opengl-games/PreLoader.as",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/gfx-test.c",
+		"/Z/Temp/flascc_ports/SDLgears-1.0.2/SDLgears_console.c",
+		"/D/Distr2/reps/las3r/doc/las3r_doc.txt",
+		"/D/Distr2/reps/las3r/README.markdown",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/Console_.as",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/test_vfs/generated_fs/myvfsprefix_000002.as",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/test_vfs/generated_fs/myvfsprefix.rules",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/my_image_.c",
+		"/Z/Temp/flascc_samples/07_FileSystem/vfstest.cpp",
+		"/C/Users/Andrew/AppData/Roaming/Macromedia/Flash Player/#Security/FlashPlayerTrust/my.cfg",
+		"/Z/Temp/flascc_samples/07_FileSystem/LSOBackingStore.as",
+		"/Z/Temp/flascc_samples/07_FileSystem/HTTPBackingStore.as",
+		"/Z/Temp/flascc_samples/07_FileSystem/testvfsRootFSBackingStore.as",
+		"/Z/Distr3/adobe/FlasCC_1.0.1/samples/07_FileSystem/webvfs/remote.txt",
+		"/Z/Distr3/adobe/FlasCC_1.0.1/samples/07_FileSystem/vfs/rocks.txt",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/data/gfx/gl1/utils/icon/liquidwar6-icon-32x32.png",
+		"/Z/Temp/alcfreeglut/demos/teapot.c",
+		"/Z/Distr3/adobe/FlasCC_1.0.1/sdk/usr/include/GL/freeglut_std.h",
+		"/Z/Temp/alcfreeglut/demos/NeHeLesson05/lesson5.c",
+		"/Z/Temp/alcfreeglut/Makefile",
+		"/Z/Temp/alcfreeglut/demos/shapes.c",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/teapot.c",
+		"/Z/Temp/flascc_ports/SDLgears-1.0.2/Makefile",
+		"/Z/Temp/flascc_ports/SDLgears-1.0.2/Console.as",
+		"/Z/Distr3/adobe/FlasCC_1.0.1/sdk/usr/share/Console.as",
+		"/C/Users/Lutik/Desktop/monopoly-money.jpg",
+		"/Z/Temp/neverball-flascc/compiling-opengl-games/Console.as",
+		"/Z/Temp/flascc_samples/09_Pthreads/pthreads.cpp",
+		"/C/Users/Andrew/Desktop/TODO.txt",
+		"/Z/Temp/flascc_ports/для конфиг скриптов_",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/So, how to counter the number of the lines in the",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/gfx-sdl.c",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/gfx-api.c",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/mod-gl1-backend.c",
+		"/Z/Temp/flascc_ports/SDLgears-1.0.2/SDLgears.c",
+		"/Z/Temp/flascc_ports/SDLgears-1.0.2/lesson5.c",
+		"/C/Users/Andrew/Desktop/Деньги-дребеденьги для Феди/dengi-001.jpg",
+		"/Z/Temp/flascc_ports/SDLgears-1.0.2/Console_.as",
+		"/Z/Distr3/adobe/FlasCC_1.0.1/samples/01_HelloWorld/hello.c",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/gfx.h",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/mod-gl1-internal.h",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/gfx-register.c",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/Makefile.in",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-background/gl1-void/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-background/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-hud/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/gfx-testmain-flash_.c",
+		"/Z/Temp/flascc_ports/glu-9.0.0/Makefile",
+		"/Z/Temp/flascc_ports/glu-9.0.0/include/GL/glu_mangle.h",
+		"/Z/Temp/flascc_ports/glu-9.0.0/include/GL/glu.h",
+		"/Z/Temp/flascc_ports/glu-9.0.0/src/libutil/project.c",
+		"/Z/Books3/Худ.лит/Two_cities.txt",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-hud/Makefiled",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-background/Makefiled",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-background/gl1-bubbles/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-background/gl1-void/Makefiled",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-background/gl1-bubbles/Makefiled",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-hud/gl1-tactical/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-hud/gl1-tactical/Makefiled",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-hud/gl1-floating/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-hud/gl1-floating/Makefiled",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-menu/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-menu/Makefile_",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-menu/gl1-cylinder/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-menu/gl1-cylinder/Makefile.in",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-background/gl1-background.h",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-hud/gl1-hud.h",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-menu/gl1-menu.h",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-menu/gl1-cylinder/Makefile_",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-view/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-view/Makefile_",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-view/gl1-flat/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-view/gl1-flat/Makefile.in",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-view/gl1-view.h",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-view/gl1-flat/Makefile_",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-utils/Makefile.in",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-utils/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-utils/Makefile_",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-splash/Makefile.in",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-splash/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/gl1-splash/Makefile_",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/Makefile.in",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/shared-sdl/Makefile.in",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/shared-sdl/shared-sdl-internal.h",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-gl1/Makefile_",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/shared-sdl/Makefile",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/shared-sdl/shared-sdl-backend.c",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/shared-sdl/Makefile_",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/dyn/dyn.h",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/dyn/dyn-internal.h",
+		"/D/cygwin/usr/include/ltdl.h",
+		"/Z/Temp/flascc_ports/liquidwar6/liquidwar6/src/lib/gfx/mod-soft/mod-soft-internal.h"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			"Z:\\Temp\\gmp-5.1.0"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"video_swap",
+			"ni",
+			"make",
+			"ctep",
+			"connect-to-eval-pipe",
+			"http-pos",
+			"localhost",
+			"RootF",
+			"Root",
+			"ZipBackingStore",
+			"lw6gfx_test",
+			"Am I",
+			"TextField",
+			"context",
+			"ZipBackingStore",
+			"Console",
+			"glV",
+			"gl",
+			"glEn",
+			"gl",
+			"stat",
+			"static",
+			"Console",
+			"test_sdl",
+			"lw6sys_arg_test_mode",
+			"gluOrtho2D",
+			"gluPerspective",
+			"gluLookAt",
+			"LW6GFX_LIB_S",
+			"ALLINONE_TRUE",
+			"LW6_ALLINONE",
+			"dl_handle",
+			"dyn",
+			"make",
+			"Console",
+			"SDL_INIT_VIDEO",
+			"getPu",
+			"enginetickptr",
+			"AS3_GET_ID",
+			"addEventListener",
+			"  });\\",
+			"loop",
+			"main",
+			"print_xml_header",
+			"liquidwar6gfx_test",
+			"am__liquidwar6gfx_test_SOURCES_DIST",
+			"liquidwar6gfx_test_SOURCES",
+			"lw6gfx_test",
+			"get_script_file",
+			"test_cache",
+			"$ ",
+			"bindtextdomain",
+			"LW6_PREFIX",
+			"-\n",
+			"PACKAGE_TARNAME",
+			"am_liquidwar6sys_test_OBJECTS",
+			"liquidwar6sys_test_OBJECTS",
+			"gettext",
+			"gettext-gettext",
+			"gettext",
+			"libintl_gettext",
+			"gettext-gettext",
+			"main",
+			"gl-device-release",
+			"gl_surface_test_sources",
+			"gl-device-release",
+			"slim_",
+			"slim_def",
+			"slim_hidden_def",
+			"cairo_image_surface_get_data",
+			"Mix_",
+			"make_first",
+			"client",
+			"http",
+			"client_",
+			"client",
+			"result(",
+			"result",
+			"loaded_paths",
+			"kevent",
+			"client_",
+			"client",
+			"kevent",
+			"http",
+			"client",
+			"http",
+			"tbs_",
+			"event",
+			"web",
+			"http",
+			"multipl",
+			"poll",
+			"glBindFramebuffer",
+			"glBindFramebufferEXT",
+			"CXXFLAGS",
+			"CPPFLAGS",
+			"cairo_s",
+			" cairo_test_suite-gl-device-release",
+			"gettext",
+			"gettext ",
+			"gettext",
+			"gettext ",
+			"cairo_xlib_sources",
+			"testSchemas",
+			"ax_cv_c_float_words_bigendian",
+			"PNG_CFLAGS",
+			"png",
+			"have_libz=yes",
+			" compress in -lz",
+			"have_libz",
+			" PDF surface",
+			"ax_cv_c_float_words_bigendian=no",
+			"__native_client__",
+			"multip",
+			"multi",
+			"__native_client__",
+			"http",
+			"__native_client__",
+			"multiplayer",
+			"glCreateShader",
+			"SDL_VIDEO_OPENGL_ES",
+			"__native_client__",
+			"glBindFramebuffer",
+			"glBindFramebufferEXT",
+			"gluErrorString",
+			"  ",
+			"glew",
+			"__GLEW_H__"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"MY_CRITICAL_SECTION"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 6,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "/D/cygwin/home/Andrew/.emacs",
+					"settings":
+					{
+						"buffer_size": 2317,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lisp/Lisp.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/Z/Temp/neverball-flascc/neverball-1.5.4/ball/main.c",
+					"settings":
+					{
+						"buffer_size": 14082,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								13166,
+								13176
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 7119.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Z/Temp/neverball-flascc/neverball-1.5.4/share/video.c",
+					"settings":
+					{
+						"buffer_size": 8176,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5097,
+								5097
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2559.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Z/tomcat/webapps/examples/WEB-INF/classes/HelloWorldExample.java",
+					"settings":
+					{
+						"buffer_size": 2730,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1558,
+								1598
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Java/Java.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 270.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/Z/Program_Files/Sublime_Text_3/_multiprocessing.pyd",
+					"settings":
+					{
+						"buffer_size": 35840,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "/Z/Distr3/jogl/stable/jogamp-all-platforms/etc/test.bat",
+					"settings":
+					{
+						"buffer_size": 808,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								808,
+								808
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Batch File/Batch File.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "/Z/Temp/a/examples/ru/hello/src/TutorialHelloWorld.as",
+					"settings":
+					{
+						"buffer_size": 1550,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								645,
+								645
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ActionScript/ActionScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/Z/Temp/frogatto-flascc/frogatto/.gitignore",
+					"settings":
+					{
+						"buffer_size": 395,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								86,
+								86
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 34.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 243.0,
+	"status_bar_visible": true
+}
